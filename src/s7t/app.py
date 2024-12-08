@@ -36,61 +36,69 @@ class DBProcessor(BaseProcessor):
             for file in files:
                 if file.lower().endswith(".dbf"):
                     self.logger.log(f"Trying to enter {file} in {root}")
+                    cursor = None
+                    connection = None
                     try:
-                        # Подключаемся к файлу .dbf
                         connection = devart.xbase.connect(Database=Path(root), CodePage='WesternEuropeanANSI')
                         cursor = connection.cursor()
-
-                        # Получаем структуру таблицы
+                        # Retrieving table fields
                         cursor.execute(f"PRAGMA table_info({Path(file).stem})")
                         fields = cursor.fetchall()
-                        for field in fields:
-                            self.logger.log(f"  {field[1]} (тип: {field[2]})")
-
-                        cursor.close()
-                        connection.close()
-
-                        yield [{'name': Path(file).stem, 'file_path': Path(root)}]
+                        # Check if comments exist
+                        if any(field[1] in {"COMMENT", "_COMMENT"} for field in fields):
+                            self.logger.log(f"Table {Path(file).stem} contains field 'COMMENT' or '_COMMENT'.", log_level=1)
+                            result = {'name': Path(file).stem, 'file_path': Path(root)}
+                            print(f"####{result}")
+                            yield result
+                        else:
+                            self.logger.log(f"Table {Path(file).stem} doesn't contain comment field.")
 
                     except Exception as e:
-                        print(f"Ошибка при обработке файла {Path(root)}: {e}")
+                        self.logger.log(f"Error handling file {file}: {e}")
+                    finally:
+                        if cursor:
+                            cursor.close()
+                        if connection:
+                            connection.close()
 
     async def process_table(self, file_path, table_name):
         """Process a table with a COMMENT field."""
-        self.logger.log(f"Processing table {table_name} in file {file_path.name}.")
-        connection = devart.xbase.connect(Database=file_path, CodePage='WesternEuropeanANSI')
-        cursor = connection.cursor()
-
-        # Retrieve records
-        cursor.execute(f"SELECT * FROM {table_name}")
-        rows = cursor.fetchall()
-
-        total_records = len(rows)
-        self.logger.set_task_progress(file_path.name, table_name, 0, total_records)
-
-        for i, row in enumerate(rows):
-            #record_id = row[0]
-            original_comment = row[1] or ""
-            translated_comment = await self.translator.translate(original_comment)
-            self.logger.log(translated_comment)
-            #cursor.execute(f"UPDATE {table_name} SET COMMENT = ? WHERE ID = ?",
-            #               (translated_comment, record_id))
-            self.logger.log(f"{table_name=}:::{i}:::{row}")
-            self.logger.update_task_progress(file_path.name, table_name, i + 1)
-
-        connection.commit()
-        cursor.close()
-        connection.close()
-        self.logger.log(f"Completed processing table {table_name} in file {file_path.name}.")
+        self.logger.log(f"Processing table {table_name} in folder {file_path}.", log_level=1)
+        # connection = devart.xbase.connect(Database=file_path, CodePage='WesternEuropeanANSI')
+        # cursor = connection.cursor()
+        #
+        # # Retrieve records
+        # cursor.execute(f"SELECT * FROM {table_name}")
+        # rows = cursor.fetchall()
+        #
+        # total_records = len(rows)
+        # #self.logger.set_task_progress(file_path.name, table_name, 0, total_records)
+        #
+        # for i, row in enumerate(rows):
+        #     #record_id = row[0]
+        #     original_comment = row[1] or ""
+        #     #translated_comment = await self.translator.translate(original_comment)
+        #     #self.logger.log(translated_comment)
+        #     #cursor.execute(f"UPDATE {table_name} SET COMMENT = ? WHERE ID = ?",
+        #     #               (translated_comment, record_id))
+        #     self.logger.log(f"{table_name=}:::{i}:::{row}")
+        #     #self.logger.update_task_progress(file_path.name, table_name, i + 1)
+        #
+        # connection.commit()
+        # cursor.close()
+        # connection.close()
+        self.logger.log(f"Completed processing table {table_name} in file {file_path.name}.", log_level=1)
 
     async def process(self):
         """Process all .dbf files."""
         self.logger.log(f"Starting database processing in directory {self.root_dir}.")
         # func should be itterable
         ## I consider implementation async task processing here
+
         for table in self.get_tables_with_comment_field(self.root_dir):
             print(table)
-            await self.process_table(table[0]['file_path'], table[0]['name'])
+            await self.process_table(file_path=table['file_path'], table_name=table['name'])
+
         self.logger.log(f"Finished processing all databases in directory {self.root_dir}.")
 
 
@@ -140,10 +148,13 @@ class TaskLogger:
         self.progress_bars = {}
         parent_box.add(self.log_box)
 
-    def log(self, message):
+    def log(self, message, log_level=2):
         """Add a message to the logs."""
-        self.log_box.value += f"{message}\n"
-        print(message)
+        match log_level:
+            case 1:
+                self.log_box.value += f"{message}\n"
+            case 2:
+                print(message)
 
     def set_task_progress(self, file_name, task_name, current, total):
         """Initialize a progress bar for a task."""
