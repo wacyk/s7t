@@ -1,0 +1,39 @@
+{
+    "code_pages": {
+        "ascii": "ASCII",
+        "cp437": "English OEM (U.S.)",
+        "cp850": "International MS-DOS",
+        "cp1252": "Western European Windows",
+        "mac_roman": "Standard Macintosh",
+        "cp865": "Nordic MS-DOS",
+        "cp932": "Japanese Windows",
+        "cp866": "Russian OEM",
+        "utf8": "8-bit unicode",
+        "cp863": "French OEM (Canada)",
+        "cp852": "Czech OEM",
+        "cp860": "Portugese OEM",
+        "cp936": "Chinese GBK (PRC)",
+        "cp949": "Korean Windows",
+        "cp950": "Chinese Big 5 (Taiwan)",
+        "cp874": "Thai Windows",
+        "cp1250": "Eastern European Windows",
+        "cp1251": "Russian Windows",
+        "cp1254": "Turkish Windows",
+        "cp1253": "Greek Windows",
+        "cp1257": "Baltic Windows",
+        "mac_cyrillic": "Russian Macintosh",
+        "mac_latin2": "Macintosh EE",
+        "mac_greek": "Greek Macintosh",
+        "cp737": "Greek MS-DOS (437G)",
+        "cp857": "Turkish MS-DOS"
+    },
+    "default_encoding": "cp950",
+    "translator_settings": {
+        "target_language": "en",
+        "api_url": "https://translate.googleapis.com/translate_a/single"
+    },
+    "directories": {
+        "db_root_dir": "/home/wt/D2",
+        "log_dir": "./logs"
+    }
+}
