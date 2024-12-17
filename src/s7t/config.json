@@ -27,7 +27,7 @@
         "cp737": "Greek MS-DOS (437G)",
         "cp857": "Turkish MS-DOS"
     },
-    "default_encoding": "cp950",
+    "default_encoding": "cp932",
     "translator_settings": {
         "target_language": "en",
         "api_url": "https://translate.googleapis.com/translate_a/single"
@@ -35,5 +35,28 @@
     "directories": {
         "db_root_dir": "/home/wt/D2",
         "log_dir": "./logs"
+    },
+    "tr": {
+        "en": {
+            "select_db_dir": "Select Database Directory",
+            "process_db": "Process Databases",
+            "log_dir_not_selected": "Database directory is not selected.",
+            "processing_started": "Starting database processing...",
+            "encoding_changed": "Encoding changed to {encoding} --> {value}"
+        },
+        "ru": {
+            "select_db_dir": "Выберите каталог базы данных",
+            "process_db": "Обработать базы данных",
+            "log_dir_not_selected": "Каталог базы данных не выбран.",
+            "processing_started": "Начинается обработка базы данных...",
+            "encoding_changed": "Кодировка изменена на {encoding} --> {value}"
+        },
+        "pl": {
+            "select_db_dir": "Wybierz katalog bazy danych",
+            "process_db": "Przetwórz bazy danych",
+            "log_dir_not_selected": "Nie wybrano katalogu bazy danych.",
+            "processing_started": "Rozpoczynanie przetwarzania bazy danych...",
+            "encoding_changed": "Kodowanie zmienione na {encoding} --> {value}"
+        }
     }
 }

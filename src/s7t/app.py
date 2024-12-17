@@ -10,7 +10,7 @@ import toga
 
 from toga.style import Pack
 from toga.style.pack import COLUMN, ROW
-
+conf = ConfigManager("config.json")
 
 class BaseProcessor:
     """Base class for working with data sources."""
@@ -128,74 +128,61 @@ class TaskLogger:
 
 
 class TranslationApp(toga.App):
+    def __init__(self, language="en", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lang = language
+
+        self.config_manager = ConfigManager("config.json")
+
+
+
     def startup(self):
         self.main_box = toga.Box(style=Pack(direction=COLUMN))
-
-        # Initialize configuration manager
-        try:
-            self.config_manager = ConfigManager('config.json')
-        except FileNotFoundError:
-            self.logger.log("Error: 'config.json' not found. Using default settings.")
-            self.config_manager = ConfigManager()  # Initialize with defaults
-
-        # Load settings from config
         self.logger = TaskLogger(self.main_box)
-        self.code_pages = self.config_manager.get("code_pages", {})
-        self.encoding = self.config_manager.get("default_encoding", "cp1252")
-        self.db_root_dir = self.config_manager.get("directories", {}).get("db_root_dir", "")
-
+        # Load settings from config
+        self.db_root_dir = conf["directories"]["db_root_dir"]
         self.translator = Translator(
-            target_language=self.config_manager.get("translator_settings", {}).get("target_language", "en"),
+            target_language=conf["translator_settings"]["target_language"],
             logger=self.logger
         )
 
         # Dropdown for code pages
-        self.encodings_kv_swapped = {v: k for k, v in self.code_pages.items()}
+        self.encodings_kv_swapped = {v: k for k, v in conf["code_pages"].items()}
         self.dropdown = toga.Selection(items=list(self.encodings_kv_swapped.keys()), style=Pack(padding=5))
-        self.dropdown.value = self.dropdown.value = self.code_pages.get(self.encoding)
+        self.dropdown.value = next((v for k, v in conf["code_pages"].items() if k == conf["default_encoding"]), None)
         self.main_box.add(self.dropdown)
+        self.dropdown.on_change = lambda widget: conf.__setitem__("default_encoding", self.encodings_kv_swapped[widget.value])
 
-        self.dropdown.on_change = self.on_encoding_change
+        # Add buttons
+        self.menu_box = toga.Box(style=Pack(direction=ROW, padding=10))
+        self.select_db_button = toga.Button(conf['tr'][self.lang]['select_db_dir'], on_press=self.select_db_directory)
+        self.process_db_button = toga.Button(conf['tr'][self.lang]['process_db'], on_press=self.process_databases)
+        self.menu_box.add(self.select_db_button)
+        self.menu_box.add(self.process_db_button)
+
+        self.main_box.add(self.menu_box)
 
         # Create the main window and set its content
         self.main_window = toga.MainWindow(title=self.formal_name)
         self.main_window.content = self.main_box
         self.main_window.show()
 
-        # Create the application menu
-        self.create_menu()
-
-    def create_menu(self):
-        """Create the application menu."""
-        self.logger.log("Creating menu.")
-        self.commands.add(
-            toga.Command(self.select_db_directory, text="Select Database Directory", group=toga.Group.FILE),
-            toga.Command(self.process_databases, text="Process Databases", group=toga.Group("Processing")),
-        )
-
     async def select_db_directory(self, widget):
         """Open a dialog to select the database directory."""
-        selected_dir = await self.main_window.select_folder_dialog(title="Select Database Directory")
+        selected_dir = await self.main_window.select_folder_dialog(title=conf["tr"][self.lang]["select_db_dir"])
         if selected_dir:
             self.db_root_dir = Path(selected_dir)
-            self.logger.log(f"Selected database directory: {selected_dir}")
+            self.logger.log(str(conf['tr'][self.lang]['select_db_dir']) + " is" + str(selected_dir))
 
     async def process_databases(self, widget):
         """Start database processing."""
         if not self.db_root_dir:
-            self.logger.log("Database directory is not selected.")
+            self.logger.log("sfdas")
             return
-        self.logger.log("Starting database processing...")
+        print (str(conf["tr"][self.lang]["processing_started"]))
         db_processor = DBProcessor(self.db_root_dir, self.translator, self.logger, self.encoding)
         await db_processor.process()
 
-    def on_encoding_change(self, widget):
-        """Handle encoding change from dropdown."""
-        new_encoding = self.encodings_kv_swapped.get(widget.value)
-        self.config_manager.update("default_encoding", new_encoding)
-        self.logger.log(f"Encoding changed to {new_encoding} --> {widget.value}")
-
-
 
 def main():
-    return TranslationApp()
+    return TranslationApp(language="pl")
