@@ -39,24 +39,28 @@
     "tr": {
         "en": {
             "select_db_dir": "Select Database Directory",
+            "selected_dir": "Selected folder",
             "process_db": "Process Databases",
             "log_dir_not_selected": "Database directory is not selected.",
             "processing_started": "Starting database processing...",
             "encoding_changed": "Encoding changed to {encoding} --> {value}"
         },
-        "ru": {
-            "select_db_dir": "Выберите каталог базы данных",
-            "process_db": "Обработать базы данных",
-            "log_dir_not_selected": "Каталог базы данных не выбран.",
-            "processing_started": "Начинается обработка базы данных...",
-            "encoding_changed": "Кодировка изменена на {encoding} --> {value}"
-        },
         "pl": {
             "select_db_dir": "Wybierz katalog bazy danych",
+            "selected_dir": "Wybrany folder",
             "process_db": "Przetwórz bazy danych",
             "log_dir_not_selected": "Nie wybrano katalogu bazy danych.",
             "processing_started": "Rozpoczynanie przetwarzania bazy danych...",
             "encoding_changed": "Kodowanie zmienione na {encoding} --> {value}"
+        },
+        "ru": {
+            "select_db_dir": "Выберите каталог базы данных",
+            "selected_dir": "Выбрана папка",
+            "process_db": "Обработать базы данных",
+            "log_dir_not_selected": "Каталог базы данных не выбран.",
+            "processing_started": "Начинается обработка базы данных...",
+            "encoding_changed": "Кодировка изменена на {encoding} --> {value}"
         }
+
     }
 }
